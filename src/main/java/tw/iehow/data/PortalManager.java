@@ -85,6 +85,12 @@ public class PortalManager {
 
     private static void loadPortals() throws IOException {
         File file = new File(DATA_FOLDER, PORTALS_DATA_FILE);
+        if (!file.exists()) {
+            ProxyPortal.LOGGER.info("Portal data file not found. Creating default configuration with example portals.");
+            createDefaultPortalConfig();
+            return;
+        }
+
         try (FileReader reader = new FileReader(file)) {
             Type type = new TypeToken<Map<String, PortalData>>(){}.getType();
             Map<String, PortalData> loadedPortals = gson.fromJson(reader, type);
@@ -92,6 +98,20 @@ public class PortalManager {
                 portals.putAll(loadedPortals);
             }
         }
+    }
+
+    private static void createDefaultPortalConfig() throws IOException {
+        PortalData examplePortal = new PortalData(
+            "example_portal",
+            new PortalData.PositionGroup(
+                "example:dimension",
+                new PortalData.Position(0, 64, 0),
+                new PortalData.Position(5, 70, 5)
+            ),
+            "lobby"
+        );
+        portals.put(examplePortal.portalName, examplePortal);
+        savePortals();
     }
 
     public static int getPortalCount() {
