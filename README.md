@@ -6,6 +6,11 @@ ProxyPortal is a mod designed for Fabric servers that uses Velocity as a proxy s
 
 **Proxy Server**: Velocity (for cross-server functionality)
 
+## Features
+
+- **Custom Portals**: Create portals to teleport players between servers.
+- **Native Portal Override**: Automatically cancels native teleportation for Nether Portals, End Portals, and End Gateways.
+
 ## Usage
 
 ### Permission Requirements
@@ -47,3 +52,12 @@ This creates a portal named "spawn_portal" with area from coordinates (100,64,20
 
 ProxyPortal portals are invisible regions and do not generate any blocks or structures automatically.
 Admins are encouraged to decorate portals with blocks, lights, or particle effects to make them visually recognizable to players.
+
+### Native Portal Override
+
+ProxyPortal automatically cancels the native teleportation behavior of the following portals:
+- **Nether Portals**
+- **End Portals**
+- **End Gateways**
+
+This ensures that players do not accidentally trigger vanilla teleportation mechanics, allowing server admins to fully control teleportation behavior through ProxyPortal.
