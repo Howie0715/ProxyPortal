@@ -1,0 +1,33 @@
+{
+	"schemaVersion": 1,
+	"id": "proxyportal",
+	"version": "${version}",
+	"name": "ProxyPortal",
+	"description": "Building portal for Fabric server using Velocity as proxy.",
+	"authors": [
+		"Howie0715"
+	],
+	"contact": {
+		"sources": "https://github.com/Howie0715/ProxyPortal"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/proxyportal/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"tw.iehow.ProxyPortal"
+		]
+	},
+	"mixins": [
+		"proxyportal.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.17.2",
+		"minecraft": ">=1.21.7",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
