@@ -37,28 +37,27 @@ public class PortalCommand {
     };
 
     public static void register() {
-        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
             dispatcher.register(CommandManager.literal("portal")
-                .requires(source -> source.hasPermissionLevel(2))
-                .then(CommandManager.literal("create")
-                    .then(CommandManager.argument("name", StringArgumentType.string())
-                        .then(CommandManager.argument("x1", DoubleArgumentType.doubleArg())
-                            .then(CommandManager.argument("y1", DoubleArgumentType.doubleArg())
-                                .then(CommandManager.argument("z1", DoubleArgumentType.doubleArg())
-                                    .then(CommandManager.argument("x2", DoubleArgumentType.doubleArg())
-                                        .then(CommandManager.argument("y2", DoubleArgumentType.doubleArg())
-                                            .then(CommandManager.argument("z2", DoubleArgumentType.doubleArg())
-                                                .then(CommandManager.argument("server", StringArgumentType.string())
-                                                    .executes(PortalCommand::createPortal))))))))))
-                .then(CommandManager.literal("delete")
-                    .then(CommandManager.argument("name", StringArgumentType.string())
-                        .suggests(PORTAL_NAME_SUGGESTIONS)
-                        .executes(PortalCommand::deletePortal)))
-                .then(CommandManager.literal("list")
-                    .executes(PortalCommand::listPortals))
-                .then(CommandManager.literal("reload")
-                    .executes(PortalCommand::reloadPortals)));
-        });
+            .requires(source -> source.hasPermissionLevel(2))
+            .then(CommandManager.literal("create")
+                .then(CommandManager.argument("name", StringArgumentType.string())
+                    .then(CommandManager.argument("x1", DoubleArgumentType.doubleArg())
+                        .then(CommandManager.argument("y1", DoubleArgumentType.doubleArg())
+                            .then(CommandManager.argument("z1", DoubleArgumentType.doubleArg())
+                                .then(CommandManager.argument("x2", DoubleArgumentType.doubleArg())
+                                    .then(CommandManager.argument("y2", DoubleArgumentType.doubleArg())
+                                        .then(CommandManager.argument("z2", DoubleArgumentType.doubleArg())
+                                            .then(CommandManager.argument("server", StringArgumentType.string())
+                                                .executes(PortalCommand::createPortal))))))))))
+            .then(CommandManager.literal("delete")
+                .then(CommandManager.argument("name", StringArgumentType.string())
+                    .suggests(PORTAL_NAME_SUGGESTIONS)
+                    .executes(PortalCommand::deletePortal)))
+            .then(CommandManager.literal("list")
+                .executes(PortalCommand::listPortals))
+            .then(CommandManager.literal("reload")
+                .executes(PortalCommand::reloadPortals))));
     }
 
     private static int createPortal(CommandContext<ServerCommandSource> context) {
