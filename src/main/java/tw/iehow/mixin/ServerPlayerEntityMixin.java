@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import tw.iehow.data.PortalData;
 import tw.iehow.data.PortalManager;
 import tw.iehow.teleport.TeleportHandler;
+import tw.iehow.util.PositionCheck;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +48,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
         for (PortalData portal : PortalManager.getAllPortals()) {
             if (!portal.positions.dimension.equals(currentDimension)) continue;
 
-            if (isPlayerInPortalArea(playerPos, portal.positions)) {
+            if (PositionCheck.isInPortalArea(playerPos, portal.positions)) {
                 isInAnyPortal = true;
                 if (!playersInPortal.getOrDefault(playerId, false)) {
                     TeleportHandler.teleportPlayer(player, portal);
@@ -60,19 +61,5 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
         if (!isInAnyPortal) {
             playersInPortal.remove(playerId);
         }
-    }
-
-    @Unique
-    private boolean isPlayerInPortalArea(BlockPos playerPos, PortalData.PositionGroup positions) {
-        double minX = Math.min(positions.pos1.x, positions.pos2.x);
-        double maxX = Math.max(positions.pos1.x, positions.pos2.x);
-        double minY = Math.min(positions.pos1.y, positions.pos2.y);
-        double maxY = Math.max(positions.pos1.y, positions.pos2.y);
-        double minZ = Math.min(positions.pos1.z, positions.pos2.z);
-        double maxZ = Math.max(positions.pos1.z, positions.pos2.z);
-
-        return playerPos.getX() >= minX && playerPos.getX() <= maxX &&
-                playerPos.getY() >= minY && playerPos.getY() <= maxY &&
-                playerPos.getZ() >= minZ && playerPos.getZ() <= maxZ;
     }
 }

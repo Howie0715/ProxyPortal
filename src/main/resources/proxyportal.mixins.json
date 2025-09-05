@@ -3,6 +3,9 @@
   "package": "tw.iehow.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "EndGatewayBlockMixin",
+    "EndPortalBlockMixin",
+    "NetherPortalBlockMixin",
     "ServerPlayerEntityMixin"
   ],
   "injectors": {
