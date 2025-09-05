@@ -1,7 +1,6 @@
 package tw.iehow.mixin;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.block.EndPortalBlock;
 import net.minecraft.block.NetherPortalBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCollisionHandler;
