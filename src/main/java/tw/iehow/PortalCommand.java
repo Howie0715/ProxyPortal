@@ -20,8 +20,10 @@ public class PortalCommand {
     private static final String PORTAL_DELETE_ERROR = "§cError occurred while deleting portal: %s";
     private static final String PORTAL_LIST_EMPTY = "§eNo portals currently exist";
     private static final String PORTAL_LIST_HEADER = "§aPortal List:";
-    private static final String PORTAL_LIST_ITEM = "§b- %s §7(Dimension: %s, Target Server: %s)";
+    private static final String PORTAL_LIST_ITEM = "§b- %s";
+    private static final String PORTAL_LIST_DIMENSION = "  §7Dimension: %s";
     private static final String PORTAL_LIST_COORDINATES = "  §7Coordinates: (%.1f, %.1f, %.1f) to (%.1f, %.1f, %.1f)";
+    private static final String PORTAL_LIST_TARGET_SERVER = "  §7Target Server: %s";
     private static final String PORTAL_LIST_ERROR = "§cError occurred while listing portals: %s";
     private static final String PORTAL_RELOAD_SUCCESS = "§aSuccessfully reloaded portal data";
     private static final String PORTAL_RELOAD_ERROR = "§cError occurred while reloading portals: %s";
@@ -124,12 +126,13 @@ public class PortalCommand {
             } else {
                 context.getSource().sendFeedback(() -> Text.literal(PORTAL_LIST_HEADER), false);
                 for (PortalData portal : portals) {
-                    context.getSource().sendFeedback(() -> Text.literal(String.format(PORTAL_LIST_ITEM,
-                        portal.portalName, portal.positions.dimension, portal.destinationServer)), false);
-
+                    context.getSource().sendFeedback(() -> Text.literal(String.format(PORTAL_LIST_ITEM, portal.portalName)), false);
+                    context.getSource().sendFeedback(() -> Text.literal(String.format(PORTAL_LIST_DIMENSION, portal.positions.dimension)), false);
                     context.getSource().sendFeedback(() -> Text.literal(String.format(PORTAL_LIST_COORDINATES,
                         portal.positions.pos1.x, portal.positions.pos1.y, portal.positions.pos1.z,
                         portal.positions.pos2.x, portal.positions.pos2.y, portal.positions.pos2.z)), false);
+                    context.getSource().sendFeedback(() -> Text.literal(String.format(PORTAL_LIST_TARGET_SERVER, portal.destinationServer)), false);
+
                 }
             }
 
