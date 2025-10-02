@@ -40,7 +40,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
     @Unique
     private void checkPortalCollision(ServerPlayerEntity player) {
         BlockPos playerPos = player.getBlockPos();
-        String currentDimension = player.getWorld().getRegistryKey().getValue().toString();
+        String currentDimension = player.getEntityWorld().getRegistryKey().getValue().toString();
         UUID playerId = player.getUuid();
 
         boolean isInAnyPortal = false;
