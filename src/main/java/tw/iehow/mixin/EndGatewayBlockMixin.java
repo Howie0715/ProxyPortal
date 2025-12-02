@@ -17,7 +17,7 @@ import tw.iehow.util.PositionCheck;
 @Mixin(EndGatewayBlock.class)
 public class EndGatewayBlockMixin {
     @Inject(method = "onEntityCollision", at = @At("HEAD"), cancellable = true)
-    private void cancelPortalBlockTeleport(BlockState state, World world, BlockPos pos, Entity entity, EntityCollisionHandler handler, boolean bl, CallbackInfo ci) {
+    private void cancelPortalBlockTeleport(BlockState state, World world, BlockPos pos, Entity entity, EntityCollisionHandler handler, CallbackInfo ci) {
         for (PortalData portalData : PortalManager.getAllPortals()) {
             if (!portalData.positions.dimension.equals(entity.getEntityWorld().getRegistryKey().getValue().toString())) continue;
             if (PositionCheck.isInPortalArea(pos, portalData.positions)) {
