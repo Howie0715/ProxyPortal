@@ -25,8 +25,8 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
     @Unique
     private static final Map<UUID, Boolean> playersInPortal = new HashMap<>();
 
-    public ServerPlayerEntityMixin(World world, GameProfile gameProfile) {
-        super(world, gameProfile);
+    public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile gameProfile) {
+        super(world, pos, yaw, gameProfile);
     }
 
     @Inject(method = "tick", at = @At("HEAD"))
