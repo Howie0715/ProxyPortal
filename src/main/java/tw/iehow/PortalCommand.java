@@ -5,6 +5,8 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.minecraft.command.permission.Permission;
+import net.minecraft.command.permission.PermissionLevel;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
@@ -39,7 +41,8 @@ public class PortalCommand {
     public static void register() {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
             dispatcher.register(CommandManager.literal("portal")
-            .requires(source -> source.hasPermissionLevel(2))
+            .requires(source -> source.getPermissions().hasPermission(
+                    new Permission.Level(PermissionLevel.fromLevel(2))))
             .then(CommandManager.literal("create")
                 .then(CommandManager.argument("name", StringArgumentType.string())
                     .then(CommandManager.argument("x1", DoubleArgumentType.doubleArg())
