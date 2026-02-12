@@ -16,7 +16,7 @@ public class ProxyPortal implements ModInitializer {
 	public void onInitialize() {
         PortalManager.initializePortals();
         PortalCommand.register();
-        PayloadTypeRegistry.playS2C().register(ProxyPacket.PACKET_ID, ProxyPacket.codec);
+        PayloadTypeRegistry.playS2C().registerLarge(ProxyPacket.PACKET_ID, ProxyPacket.codec, 16);
         LOGGER.info("ProxyPortal loaded successfully with {} portals", PortalManager.getPortalCount());
     }
 }
