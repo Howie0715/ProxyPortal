@@ -1,29 +1,30 @@
 package tw.iehow.teleport;
 
 import io.netty.buffer.Unpooled;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type;
+import net.minecraft.resources.Identifier;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public record ProxyPacket(String... args) implements CustomPayload {
-    public static final Identifier BUNGEECORD_ID = Identifier.of("bungeecord", "main");
-    public static final CustomPayload.Id<ProxyPacket> PACKET_ID = new CustomPayload.Id<>(BUNGEECORD_ID);
-    public static final PacketCodec<RegistryByteBuf, ProxyPacket> codec = new PacketCodec<>() {
+public record ProxyPacket(String... args) implements CustomPacketPayload {
+    public static final Identifier BUNGEECORD_ID = Identifier.fromNamespaceAndPath("bungeecord", "main");
+    public static final CustomPacketPayload.Type<ProxyPacket> PACKET_ID = new CustomPacketPayload.Type<>(BUNGEECORD_ID);
+    public static final StreamCodec<RegistryFriendlyByteBuf, ProxyPacket> codec = new StreamCodec<>() {
 
         @Override
-        public ProxyPacket decode(RegistryByteBuf buf) {
+        public ProxyPacket decode(RegistryFriendlyByteBuf buf) {
             return null;
         }
 
         @Override
-        public void encode(RegistryByteBuf buf, ProxyPacket value) {
-            try (ByteBufDataOutput output = new ByteBufDataOutput(new PacketByteBuf(Unpooled.buffer()))) {
+        public void encode(RegistryFriendlyByteBuf buf, ProxyPacket value) {
+            try (ByteBufDataOutput output = new ByteBufDataOutput(new FriendlyByteBuf(Unpooled.buffer()))) {
                 for (String arg : value.args())
                     output.writeUTF(arg);
                 buf.writeBytes(output.getBuf());
@@ -34,20 +35,20 @@ public record ProxyPacket(String... args) implements CustomPayload {
     };
 
     @Override
-    public Id<? extends CustomPayload> getId() {
+    public Type<? extends CustomPacketPayload> type() {
         return PACKET_ID;
     }
 
     private static class ByteBufDataOutput extends OutputStream {
-        private final PacketByteBuf packetByteBuf;
+        private final FriendlyByteBuf packetByteBuf;
         private final DataOutputStream dataOutputStream;
 
-        public ByteBufDataOutput(PacketByteBuf buf) {
+        public ByteBufDataOutput(FriendlyByteBuf buf) {
             this.packetByteBuf = buf;
             this.dataOutputStream = new DataOutputStream(this);
         }
 
-        public PacketByteBuf getBuf() {
+        public FriendlyByteBuf getBuf() {
             return packetByteBuf;
         }
 

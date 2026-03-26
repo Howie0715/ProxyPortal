@@ -1,10 +1,10 @@
 package tw.iehow.mixin;
 
 import com.mojang.authlib.GameProfile;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -19,29 +19,29 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-@Mixin(ServerPlayerEntity.class)
-public abstract class ServerPlayerEntityMixin extends PlayerEntity {
+@Mixin(ServerPlayer.class)
+public abstract class ServerPlayerMixin extends Player {
 
     @Unique
     private static final Map<UUID, Boolean> playersInPortal = new HashMap<>();
 
-    public ServerPlayerEntityMixin(World world, GameProfile gameProfile) {
+    public ServerPlayerMixin(Level world, GameProfile gameProfile) {
         super(world, gameProfile);
     }
 
     @Inject(method = "tick", at = @At("HEAD"))
     private void tick(CallbackInfo ci) {
-        ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
-        if (player.age % 5 == 0) {
+        ServerPlayer player = (ServerPlayer) (Object) this;
+        if (player.tickCount % 5 == 0) {
             checkPortalCollision(player);
         }
     }
 
     @Unique
-    private void checkPortalCollision(ServerPlayerEntity player) {
-        BlockPos playerPos = player.getBlockPos();
-        String currentDimension = player.getEntityWorld().getRegistryKey().getValue().toString();
-        UUID playerId = player.getUuid();
+    private void checkPortalCollision(ServerPlayer player) {
+        BlockPos playerPos = player.blockPosition();
+        String currentDimension = player.level().dimension().identifier().toString();
+        UUID playerId = player.getUUID();
 
         boolean isInAnyPortal = false;
 

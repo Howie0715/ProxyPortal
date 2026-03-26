@@ -5,11 +5,11 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.minecraft.command.permission.Permission;
-import net.minecraft.command.permission.PermissionLevel;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
+import net.minecraft.server.permissions.Permission;
+import net.minecraft.server.permissions.PermissionLevel;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
 import tw.iehow.data.PortalData;
 import tw.iehow.data.PortalManager;
 
@@ -30,7 +30,7 @@ public class PortalCommand {
     private static final String PORTAL_RELOAD_SUCCESS = "§aSuccessfully reloaded portal data";
     private static final String PORTAL_RELOAD_ERROR = "§cError occurred while reloading portals: %s";
 
-    private static final SuggestionProvider<ServerCommandSource> PORTAL_NAME_SUGGESTIONS = (context, builder) -> {
+    private static final SuggestionProvider<CommandSourceStack> PORTAL_NAME_SUGGESTIONS = (context, builder) -> {
         var portals = PortalManager.getAllPortals();
         for (PortalData portal : portals) {
             builder.suggest(portal.portalName);
@@ -40,30 +40,30 @@ public class PortalCommand {
 
     public static void register() {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
-            dispatcher.register(CommandManager.literal("portal")
-            .requires(source -> source.getPermissions().hasPermission(
-                    new Permission.Level(PermissionLevel.fromLevel(2))))
-            .then(CommandManager.literal("create")
-                .then(CommandManager.argument("name", StringArgumentType.string())
-                    .then(CommandManager.argument("x1", DoubleArgumentType.doubleArg())
-                        .then(CommandManager.argument("y1", DoubleArgumentType.doubleArg())
-                            .then(CommandManager.argument("z1", DoubleArgumentType.doubleArg())
-                                .then(CommandManager.argument("x2", DoubleArgumentType.doubleArg())
-                                    .then(CommandManager.argument("y2", DoubleArgumentType.doubleArg())
-                                        .then(CommandManager.argument("z2", DoubleArgumentType.doubleArg())
-                                            .then(CommandManager.argument("server", StringArgumentType.string())
+            dispatcher.register(Commands.literal("portal")
+            .requires(source -> source.permissions().hasPermission(
+                    new Permission.HasCommandLevel(PermissionLevel.byId(2))))
+            .then(Commands.literal("create")
+                .then(Commands.argument("name", StringArgumentType.string())
+                    .then(Commands.argument("x1", DoubleArgumentType.doubleArg())
+                        .then(Commands.argument("y1", DoubleArgumentType.doubleArg())
+                            .then(Commands.argument("z1", DoubleArgumentType.doubleArg())
+                                .then(Commands.argument("x2", DoubleArgumentType.doubleArg())
+                                    .then(Commands.argument("y2", DoubleArgumentType.doubleArg())
+                                        .then(Commands.argument("z2", DoubleArgumentType.doubleArg())
+                                            .then(Commands.argument("server", StringArgumentType.string())
                                                 .executes(PortalCommand::createPortal))))))))))
-            .then(CommandManager.literal("delete")
-                .then(CommandManager.argument("name", StringArgumentType.string())
+            .then(Commands.literal("delete")
+                .then(Commands.argument("name", StringArgumentType.string())
                     .suggests(PORTAL_NAME_SUGGESTIONS)
                     .executes(PortalCommand::deletePortal)))
-            .then(CommandManager.literal("list")
+            .then(Commands.literal("list")
                 .executes(PortalCommand::listPortals))
-            .then(CommandManager.literal("reload")
+            .then(Commands.literal("reload")
                 .executes(PortalCommand::reloadPortals))));
     }
 
-    private static int createPortal(CommandContext<ServerCommandSource> context) {
+    private static int createPortal(CommandContext<CommandSourceStack> context) {
         try {
             String name = StringArgumentType.getString(context, "name");
             double x1 = DoubleArgumentType.getDouble(context, "x1");
@@ -74,8 +74,8 @@ public class PortalCommand {
             double z2 = DoubleArgumentType.getDouble(context, "z2");
             String server = StringArgumentType.getString(context, "server");
 
-            ServerCommandSource source = context.getSource();
-            String dimension = source.getWorld().getRegistryKey().getValue().toString();
+            CommandSourceStack source = context.getSource();
+            String dimension = source.getLevel().dimension().identifier().toString();
 
             PortalData.Position pos1 = new PortalData.Position(x1, y1, z1);
             PortalData.Position pos2 = new PortalData.Position(x2, y2, z2);
@@ -86,74 +86,74 @@ public class PortalCommand {
             boolean success = PortalManager.createPortal(portalData);
 
             if (success) {
-                source.sendFeedback(() -> Text.literal(String.format(PORTAL_CREATE_SUCCESS, name)), false);
+                source.sendSuccess(() -> Component.literal(String.format(PORTAL_CREATE_SUCCESS, name)), false);
             } else {
-                source.sendFeedback(() -> Text.literal(String.format(PORTAL_CREATE_FAILED, name)), false);
+                source.sendSuccess(() -> Component.literal(String.format(PORTAL_CREATE_FAILED, name)), false);
             }
 
         } catch (Exception e) {
-            context.getSource().sendFeedback(() -> Text.literal(String.format(PORTAL_CREATE_ERROR, e.getMessage())), false);
+            context.getSource().sendSuccess(() -> Component.literal(String.format(PORTAL_CREATE_ERROR, e.getMessage())), false);
             ProxyPortal.LOGGER.error("Failed to create portal", e);
         }
 
         return 1;
     }
 
-    private static int deletePortal(CommandContext<ServerCommandSource> context) {
+    private static int deletePortal(CommandContext<CommandSourceStack> context) {
         try {
             String name = StringArgumentType.getString(context, "name");
 
             boolean success = PortalManager.deletePortal(name);
 
             if (success) {
-                context.getSource().sendFeedback(() -> Text.literal(String.format(PORTAL_DELETE_SUCCESS, name)), false);
+                context.getSource().sendSuccess(() -> Component.literal(String.format(PORTAL_DELETE_SUCCESS, name)), false);
             } else {
-                context.getSource().sendFeedback(() -> Text.literal(String.format(PORTAL_DELETE_NOTFOUND, name)), false);
+                context.getSource().sendSuccess(() -> Component.literal(String.format(PORTAL_DELETE_NOTFOUND, name)), false);
             }
 
         } catch (Exception e) {
-            context.getSource().sendFeedback(() -> Text.literal(String.format(PORTAL_DELETE_ERROR, e.getMessage())), false);
+            context.getSource().sendSuccess(() -> Component.literal(String.format(PORTAL_DELETE_ERROR, e.getMessage())), false);
             ProxyPortal.LOGGER.error("Failed to delete portal", e);
         }
 
         return 1;
     }
 
-    private static int listPortals(CommandContext<ServerCommandSource> context) {
+    private static int listPortals(CommandContext<CommandSourceStack> context) {
         try {
             var portals = PortalManager.getAllPortals();
 
             if (portals.isEmpty()) {
-                context.getSource().sendFeedback(() -> Text.literal(PORTAL_LIST_EMPTY), false);
+                context.getSource().sendSuccess(() -> Component.literal(PORTAL_LIST_EMPTY), false);
             } else {
-                context.getSource().sendFeedback(() -> Text.literal(PORTAL_LIST_HEADER), false);
+                context.getSource().sendSuccess(() -> Component.literal(PORTAL_LIST_HEADER), false);
                 for (PortalData portal : portals) {
-                    context.getSource().sendFeedback(() -> Text.literal(String.format(PORTAL_LIST_ITEM, portal.portalName)), false);
-                    context.getSource().sendFeedback(() -> Text.literal(String.format(PORTAL_LIST_DIMENSION, portal.positions.dimension)), false);
-                    context.getSource().sendFeedback(() -> Text.literal(String.format(PORTAL_LIST_COORDINATES,
+                    context.getSource().sendSuccess(() -> Component.literal(String.format(PORTAL_LIST_ITEM, portal.portalName)), false);
+                    context.getSource().sendSuccess(() -> Component.literal(String.format(PORTAL_LIST_DIMENSION, portal.positions.dimension)), false);
+                    context.getSource().sendSuccess(() -> Component.literal(String.format(PORTAL_LIST_COORDINATES,
                         portal.positions.pos1.x, portal.positions.pos1.y, portal.positions.pos1.z,
                         portal.positions.pos2.x, portal.positions.pos2.y, portal.positions.pos2.z)), false);
-                    context.getSource().sendFeedback(() -> Text.literal(String.format(PORTAL_LIST_TARGET_SERVER, portal.destinationServer)), false);
+                    context.getSource().sendSuccess(() -> Component.literal(String.format(PORTAL_LIST_TARGET_SERVER, portal.destinationServer)), false);
 
                 }
             }
 
         } catch (Exception e) {
-            context.getSource().sendFeedback(() -> Text.literal(String.format(PORTAL_LIST_ERROR, e.getMessage())), false);
+            context.getSource().sendSuccess(() -> Component.literal(String.format(PORTAL_LIST_ERROR, e.getMessage())), false);
             ProxyPortal.LOGGER.error("Failed to list portals", e);
         }
 
         return 1;
     }
 
-    private static int reloadPortals(CommandContext<ServerCommandSource> context) {
+    private static int reloadPortals(CommandContext<CommandSourceStack> context) {
         try {
             PortalManager.reloadPortals();
-            context.getSource().sendFeedback(() -> Text.literal(PORTAL_RELOAD_SUCCESS), false);
+            context.getSource().sendSuccess(() -> Component.literal(PORTAL_RELOAD_SUCCESS), false);
             ProxyPortal.LOGGER.info("Reloaded portal data");
 
         } catch (Exception e) {
-            context.getSource().sendFeedback(() -> Text.literal(String.format(PORTAL_RELOAD_ERROR, e.getMessage())), false);
+            context.getSource().sendSuccess(() -> Component.literal(String.format(PORTAL_RELOAD_ERROR, e.getMessage())), false);
             ProxyPortal.LOGGER.error("Failed to reload portals", e);
         }
 

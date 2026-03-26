@@ -1,6 +1,6 @@
 package tw.iehow.util;
 
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 import tw.iehow.data.PortalData;
 
 public class PositionCheck {
